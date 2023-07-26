@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+</head>
+<body>
+<p> ALL User  </p>
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Surname</th>
+<!--        <th>Age</th>-->
+<!--        <th>Email</th>-->
+<!--        <th>Username</th>-->
+<!--        <th>Password</th>-->
+        <th>Role</th>
+        <th>Operation</th>
+    </tr>
+
+    <tr th:each="users : ${allUsers}">
+        <td th:utext="${users.getId()}">id</td>
+        <td th:utext="${users.getName()}">name</td>
+        <td th:utext="${users.getSurname()}">surname</td>
+<!--        <td th:utext="${users.getAge()}">age</td>-->
+<!--        <td th:utext="${users.getEmail()}">email</td>-->
+<!--        <td th:utext="${users.getUsername()}">username</td>-->
+<!--        <td th:utext="${users.getPassword()}">password</td>-->
+        <td th:utext="${users.getRoles()}">role</td>
+
+
+        <td>
+            <form th:method="GET" th:action="@{/admin/update/{id}(id=${users.getId()})}">
+                <input type="submit" value="Update">
+            </form>
+
+
+            <form th:method="DELETE" th:action="@{/admin/delete/{id}(id=${users.getId()})}">
+                <input type="submit" value="Delete">
+            </form>
+
+        </td>
+
+    </tr>
+
+    <br>
+    <input type="button" value="Add"
+           onclick="window.location.href = 'new'"/>
+
+
+</table>
+<a th:href="@{/logout}"><input type="button" id="logoutButton" value="Exit"></a>
+
+</body>
+</html>
