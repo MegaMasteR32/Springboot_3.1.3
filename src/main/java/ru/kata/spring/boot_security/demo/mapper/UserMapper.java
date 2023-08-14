@@ -1,58 +1,53 @@
 package ru.kata.spring.boot_security.demo.mapper;
 
-import lombok.AllArgsConstructor;
-import org.apache.tomcat.util.buf.StringUtils;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.kata.spring.boot_security.demo.dto.UserRequest;
 import ru.kata.spring.boot_security.demo.dto.UserResponse;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
+import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component
-@AllArgsConstructor
-public class UserMapper {
+import static java.util.Arrays.stream;
 
-    private final RoleRepository roleRepository;
+@Mapper
+public abstract class UserMapper {
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     public List<UserResponse> toListDto(List<User> userList) {
-        return userList.stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+        return null;
     }
 
 
-    public UserResponse toDto(User entity) {
-        var dto = new UserResponse();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setSurname(entity.getSurname());
+    @Mapping(target = "roles", source = "user.roles", qualifiedByName = "rolesToString")
+    public abstract UserResponse toDto(User user);
 
-        var roles = entity.getRoles().stream()
-                .map(Role::getRole)
-                .reduce((x, y) -> x + ", " + y);
-        dto.setRoles(roles.orElse("==="));
+    @Mapping(target = "roles", source = "userRequest.roles", qualifiedByName = "longToRoles")
+    public abstract User toEntity(UserRequest userRequest) ;
 
-        return dto;
+
+
+    @Named("rolesToString")
+    public String rolesToString(Collection<Role> roles) {
+        return roles.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(";"));
+    }
+
+    @Named("longToRoles")
+    public Set<Role> longToRoles(List<Long> roles) {
+        return roleRepository.findAllByIdIn(roles);
 
     }
 
-    public User toEntity(UserRequest userRequest) {
-        var user = new User();
-        user.setId(userRequest.getId());
-        user.setName(userRequest.getName());
-        user.setSurname(userRequest.getSurname());
-        user.setEmail(userRequest.getEmail());
-        user.setUsername(userRequest.getUsername());
-        user.setRoles(roleRepository.findAllByIdIn(userRequest.getRoles()));
-
-
-
-
-        return user;
-    }
 }

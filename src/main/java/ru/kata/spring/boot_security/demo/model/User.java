@@ -7,7 +7,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -22,19 +26,30 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id")
     private Long id;
+
     @Column(name = "name")
+    @NotEmpty(message = "Поле не может быть пустым!")
     private String name;
+
     @Column(name = "surname")
     private String surname;
+
     @Column(name = "age")
+    @Min(value = 0, message = "Поле не может быть меньше 0")
     private int age;
 
     @Column(name = "username")
     private String username;
+
     @Column(name = "email")
+    @Email
     private String email;
+
     @Column(name = "password")
     private String password;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -68,13 +83,14 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public User(String name, String surname, String password, byte age, String email, Set<Role> roles) {
+    public User(String name, String surname, String password, byte age, String email, Set<Role> roles, LocalDateTime createdAt) {
         this.name = name;
         this.surname = surname;
         this.password = password;
         this.age = age;
         this.email = email;
         this.roles = roles;
+        this.createdAt = createdAt;
     }
 
     public String getUsername() {

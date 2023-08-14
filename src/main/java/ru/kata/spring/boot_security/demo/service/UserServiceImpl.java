@@ -2,6 +2,7 @@ package ru.kata.spring.boot_security.demo.service;
 
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,13 +15,14 @@ import ru.kata.spring.boot_security.demo.mapper.UserMapper;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
+import ru.kata.spring.boot_security.demo.util.UserNotFoundException;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Slf4j
 @AllArgsConstructor
+
 class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
@@ -32,7 +34,7 @@ class UserServiceImpl implements UserService, UserDetailsService {
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         log.info("SBSDLOG: Получили всех пользователей");
-        var users = userRepository.findAll();
+        List<User> users = userRepository.findAll();
         log.debug("SBSDLOG: Getting all users:[{}]", users);
         return userMapper.toListDto(users);
     }
@@ -40,6 +42,7 @@ class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional
     public User saveUsers(UserRequest userRequest) {
+//        userRequest.setRoles(List.of(1l,2l));
         User user = userMapper.toEntity(userRequest);
 //        if (user.getRoles() == null) {
 //            user.setRoles(Set.of(roleRepository.getById(2L)));
@@ -58,8 +61,13 @@ class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public User getById(Long id) {
-        return userRepository.getById(id);
+    public UserResponse getById(Long id) {
+        try {
+            User users = userRepository.getById(id);
+            return userMapper.toDto(users);
+        }catch (Exception e){
+            throw new UserNotFoundException("зщропривпао " + id);
+        }
     }
 
     @Override
